@@ -48,23 +48,32 @@ if [ ! -d "$GAMEDIR/audio" ] || [ ! -d "$GAMEDIR/generator" ] || [ ! -f "$GAMEDI
 
   echo "Validating delver.jar..."
 
-  if ! jar tf "$GAMEDIR/delver.jar" | grep -q "audio/whoosh1.mp3"; then
+  if ! command -v unzip >/dev/null 2>&1; then
+    pm_message "unzip is missing on this system.\n\nPlease install or update PortMaster/runtime tools."
+    exit 1
+  fi
+
+  if ! unzip -l "$GAMEDIR/delver.jar" | grep -q "audio/whoosh1.mp3"; then
     pm_message "Invalid delver.jar.\n\nPlease copy delver.jar from the Steam Linux version of Delver."
     exit 1
   fi
 
-  if ! jar tf "$GAMEDIR/delver.jar" | grep -q "meshes.png"; then
+  if ! unzip -l "$GAMEDIR/delver.jar" | grep -q "meshes.png"; then
     pm_message "Invalid delver.jar.\n\nRequired Delver assets were not found."
     exit 1
   fi
 
   echo "Extracting Steam assets from delver.jar..."
-  jar xf "$GAMEDIR/delver.jar"
+  unzip -o "$GAMEDIR/delver.jar" -d "$GAMEDIR"
 
   if [ $? -ne 0 ]; then
     pm_message "Failed to extract delver.jar."
     exit 1
   fi
+
+  # The Steam UI skin is for the older LWJGL2 build and is incompatible with this port's LWJGL3 engine.
+  # The port uses the UI bundled inside game.jar instead.
+  rm -rf "$GAMEDIR/ui"
 
   rm -f "$GAMEDIR/delver.jar"
   rm -rf "$GAMEDIR/META-INF" "$GAMEDIR/com" "$GAMEDIR/org" "$GAMEDIR/net" "$GAMEDIR/javazoom"
@@ -73,6 +82,12 @@ if [ ! -d "$GAMEDIR/audio" ] || [ ! -d "$GAMEDIR/generator" ] || [ ! -f "$GAMEDI
   sync
 
   echo "Asset extraction complete."
+fi
+
+# Migration cleanup for installs that already extracted the Steam UI before this script version.
+if [ -f "$GAMEDIR/ui/skin.json" ]; then
+  echo "Removing incompatible Steam UI assets..."
+  rm -rf "$GAMEDIR/ui"
 fi
 
 if [ ! -f "$GAMEDIR/game.jar" ]; then
