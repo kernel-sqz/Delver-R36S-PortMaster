@@ -121,6 +121,15 @@ The original `delver.jar` is only required for the initial asset extraction.
 
 After the first successful launch, it will be automatically removed to save storage space.
 
+## Recommended Settings
+
+For the best experience on handheld devices:
+
+- Set **Graphics Quality** to **Low**.
+- Adjust the **gamepad controls** to better suit handheld play. In particular, it is recommended to remap the **Attack** action and assign a dedicated button for **Jump**.
+
+These changes provide noticeably better performance and a more comfortable gameplay experience on PortMaster devices.
+
 ---
 
 # Credits
