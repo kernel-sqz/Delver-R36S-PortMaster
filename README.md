@@ -22,8 +22,15 @@ You should end up with:
 /roms/ports/
 ├── delver.sh
 └── delver/
-    └── game.jar
+    ├── game.jar
+    └── jre/
 ```
+
+## Bundled Java Runtime
+
+This port includes a bundled **Eclipse Temurin OpenJDK JRE (Linux aarch64)**.
+
+The bundled runtime is used automatically on systems where Java is not installed. If a compatible system Java installation is available, it will be used instead.
 
 ---
 
@@ -137,3 +144,4 @@ These changes provide noticeably better performance and a more comfortable gamep
 - Original game: Priority Interrupt
 - Delver Engine: https://github.com/Interrupt/delverengine
 - PortMaster: https://portmaster.games
+- Bundled Java Runtime: Eclipse Temurin OpenJDK (GPLv2 with the Classpath Exception)

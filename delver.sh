@@ -90,10 +90,39 @@ if [ -f "$GAMEDIR/ui/skin.json" ]; then
   rm -rf "$GAMEDIR/ui"
 fi
 
+
 if [ ! -f "$GAMEDIR/game.jar" ]; then
   pm_message "game.jar is missing.\n\nPlease reinstall the Delver PortMaster port."
   exit 1
 fi
+
+########################################
+# Java runtime
+########################################
+
+JAVA_BIN=""
+
+if command -v java >/dev/null 2>&1; then
+  JAVA_BIN="$(command -v java)"
+elif [ -x "$GAMEDIR/jre/bin/java" ]; then
+  JAVA_BIN="$GAMEDIR/jre/bin/java"
+elif [ -x "$GAMEDIR/jre-linux/linux64/bin/java" ]; then
+  JAVA_BIN="$GAMEDIR/jre-linux/linux64/bin/java"
+elif [ -x "$GAMEDIR/java/bin/java" ]; then
+  JAVA_BIN="$GAMEDIR/java/bin/java"
+fi
+
+if [ -z "$JAVA_BIN" ]; then
+  pm_message "Java Runtime not found.\n\nThis port requires Java.\n\nPlease add a Linux aarch64 JRE to one of these locations:\n\n$GAMEDIR/jre/\n$GAMEDIR/jre-linux/linux64/\n$GAMEDIR/java/"
+  exit 1
+fi
+
+JAVA_HOME_DIR="$(dirname "$(dirname "$JAVA_BIN")")"
+export JAVA_HOME="$JAVA_HOME_DIR"
+export PATH="$(dirname "$JAVA_BIN"):$PATH"
+
+echo "Using Java: $JAVA_BIN"
+"$JAVA_BIN" -version
 
 ########################################
 # Weston runtime
@@ -127,11 +156,14 @@ pm_platform_helper "$GAMEDIR/game.jar" >/dev/null
 
 $ESUDO env \
 XDG_DATA_HOME="$XDG_DATA_HOME" \
+XDG_CONFIG_HOME="$XDG_CONFIG_HOME" \
+XDG_CACHE_HOME="$XDG_CACHE_HOME" \
 HOME="$HOME" \
 JAVA_HOME="$JAVA_HOME" \
+PATH="$PATH" \
 $weston_dir/westonwrap.sh \
 headless noop kiosk crusty_glx_gl4es \
-java -jar "$GAMEDIR/game.jar"
+"$JAVA_BIN" -jar "$GAMEDIR/game.jar"
 
 RET=$?
 
