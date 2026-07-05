@@ -18,7 +18,7 @@ source "$controlfolder/control.txt"
 
 get_controls
 
-GAMEDIR="/roms/ports/delver"
+GAMEDIR="/$directory/ports/delver"
 
 > "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1
 
@@ -100,16 +100,29 @@ fi
 # Java runtime
 ########################################
 
+# Set to 1 to always use the bundled JRE, even if the system provides Java.
+FORCE_BUNDLED_JRE=1
+
 JAVA_BIN=""
 
-if command -v java >/dev/null 2>&1; then
-  JAVA_BIN="$(command -v java)"
-elif [ -x "$GAMEDIR/jre/bin/java" ]; then
-  JAVA_BIN="$GAMEDIR/jre/bin/java"
-elif [ -x "$GAMEDIR/jre-linux/linux64/bin/java" ]; then
-  JAVA_BIN="$GAMEDIR/jre-linux/linux64/bin/java"
-elif [ -x "$GAMEDIR/java/bin/java" ]; then
-  JAVA_BIN="$GAMEDIR/java/bin/java"
+if [ "$FORCE_BUNDLED_JRE" = "1" ]; then
+  if [ -x "$GAMEDIR/jre/bin/java" ]; then
+    JAVA_BIN="$GAMEDIR/jre/bin/java"
+  elif [ -x "$GAMEDIR/jre-linux/linux64/bin/java" ]; then
+    JAVA_BIN="$GAMEDIR/jre-linux/linux64/bin/java"
+  elif [ -x "$GAMEDIR/java/bin/java" ]; then
+    JAVA_BIN="$GAMEDIR/java/bin/java"
+  fi
+else
+  if command -v java >/dev/null 2>&1; then
+    JAVA_BIN="$(command -v java)"
+  elif [ -x "$GAMEDIR/jre/bin/java" ]; then
+    JAVA_BIN="$GAMEDIR/jre/bin/java"
+  elif [ -x "$GAMEDIR/jre-linux/linux64/bin/java" ]; then
+    JAVA_BIN="$GAMEDIR/jre-linux/linux64/bin/java"
+  elif [ -x "$GAMEDIR/java/bin/java" ]; then
+    JAVA_BIN="$GAMEDIR/java/bin/java"
+  fi
 fi
 
 if [ -z "$JAVA_BIN" ]; then
