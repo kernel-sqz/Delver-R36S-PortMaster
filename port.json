@@ -1,0 +1,29 @@
+{
+    "version": 2,
+    "name": "delver.zip",
+    "items": [
+        "delver.sh",
+        "delver"
+    ],
+    "items_opt": null,
+    "attr": {
+        "title": "Delver",
+        "desc": "A first-person roguelike dungeon crawler. This PortMaster release requires the Linux Steam version of Delver.",
+        "inst": "Copy delver.jar from the Linux Steam version into /roms/ports/delver/. The port will automatically extract the required game assets on first launch.",
+        "genres": [
+            "action",
+            "adventure",
+            "rpg"
+        ],
+        "porter": [
+            "kernel_sqz"
+        ],
+        "image": {},
+        "rtr": false,
+        "runtime": null,
+        "reqs": [],
+        "arch": [
+            "aarch64"
+        ]
+    }
+}
