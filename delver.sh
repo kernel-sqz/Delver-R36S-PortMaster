@@ -3,6 +3,9 @@
 
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 
+FORCE_BUNDLED_JRE=1
+FORCE_GPTOKEYB=0
+
 if [ -d "/opt/system/Tools/PortMaster/" ]; then
   controlfolder="/opt/system/Tools/PortMaster"
 elif [ -d "/opt/tools/PortMaster/" ]; then
@@ -101,7 +104,7 @@ fi
 ########################################
 
 # Set to 1 to always use the bundled JRE, even if the system provides Java.
-FORCE_BUNDLED_JRE=1
+
 
 JAVA_BIN=""
 
@@ -167,6 +170,24 @@ echo "Starting Delver..."
 
 pm_platform_helper "$GAMEDIR/game.jar" >/dev/null
 
+########################################
+# Input helper
+########################################
+
+GPTOKEYB_PID=""
+GPTK_FILE="$GAMEDIR/delver.gptk"
+
+# Set to 1 to force gptokeyb on every CFW.
+# Leave at 0 to enable it only on muOS.
+
+# muOS may expose the built-in controls in a way that Java/LWJGL does not read directly.
+# dArkOS-RE and other CFWs that already work without this helper are left untouched.
+if { [ "$FORCE_GPTOKEYB" = "1" ] || [ "$CFW_NAME" = "muOS" ]; } && [ -f "$GPTK_FILE" ]; then
+  echo "Starting gptokeyb2 for muOS input mapping..."
+  $GPTOKEYB2 "java" -c "$GPTK_FILE" &
+  GPTOKEYB_PID=$!
+fi
+
 $ESUDO env \
 XDG_DATA_HOME="$XDG_DATA_HOME" \
 XDG_CONFIG_HOME="$XDG_CONFIG_HOME" \
@@ -181,6 +202,16 @@ headless noop kiosk crusty_glx_gl4es \
 RET=$?
 
 echo "Game exited with code $RET"
+
+if [ -n "$GPTOKEYB_PID" ]; then
+  echo "Stopping gptokeyb2..."
+  kill "$GPTOKEYB_PID" 2>/dev/null
+fi
+
+if [ "$FORCE_GPTOKEYB" = "1" ] || [ "$CFW_NAME" = "muOS" ]; then
+  $ESUDO pkill -9 -f gptokeyb 2>/dev/null
+  $ESUDO pkill -9 -f gptokeyb2 2>/dev/null
+fi
 
 echo "Cleaning Weston..."
 $ESUDO $weston_dir/westonwrap.sh cleanup
